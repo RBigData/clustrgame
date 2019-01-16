@@ -173,7 +173,6 @@ SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
   x.nrows = INTEGER(m)[0];
   x.ncols = n;
   x.nrows_local = m_local;
-  x.ncols_local = n;
   x.data = REAL(data);
   x.comm = comm;
   

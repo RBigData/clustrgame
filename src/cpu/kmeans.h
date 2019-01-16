@@ -10,7 +10,7 @@
 #define NROWS(x) (x->nrows)
 #define NCOLS(x) (x->ncols)
 #define NROWS_LOCAL(x) (x->nrows_local)
-#define NCOLS_LOCAL(x) (x->ncols_local)
+#define NCOLS_LOCAL(x) (x->ncols)
 #define DATA(x) (x->data)
 #define COMM(x) (x->comm)
 
@@ -19,7 +19,6 @@ typedef struct shaq
   len_t nrows;
   len_t ncols;
   int nrows_local;
-  int ncols_local; // same as ncols
   double *restrict data;
   MPI_Comm comm;
 } shaq;

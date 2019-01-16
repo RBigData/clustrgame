@@ -35,4 +35,26 @@ static inline int res_sampler(const len_t m, const len_t k, len_t *samp)
 }
 
 
+
+static inline void sort_insertion(const int len, len_t *const x)
+{
+  int i, j;
+  len_t tmp;
+  
+  for (i=1; i<len; i++)
+  {
+    tmp = x[i];
+    j = i - 1;
+    
+    while (j >= 0 && x[j] > tmp)
+    {
+      x[j+1] = x[j];
+      j--;
+    }
+    
+    x[j+1] = tmp;
+  }
+}
+
+
 #endif

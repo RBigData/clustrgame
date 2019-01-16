@@ -13,19 +13,19 @@ static inline int unif_rand_int(const int low, const int high)
 
 
 
-static inline int res_sampler(const len_t nlines_in, const len_t nlines_out, len_t *samp)
+static inline int res_sampler(const len_t m, const len_t k, len_t *samp)
 {
   len_t i, j;
   
-  for (i=0; i<nlines_out; i++)
+  for (i=0; i<k; i++)
     samp[i] = i + 1;
   
   GetRNGstate();
   
-  for (i=nlines_out; i<nlines_in; i++)
+  for (i=k; i<m; i++)
   {
     j = unif_rand_int(0, i-1);
-    if (j < nlines_out)
+    if (j < k)
       samp[j] = i + 1;
   }
   

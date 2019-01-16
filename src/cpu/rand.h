@@ -13,12 +13,13 @@ static inline int unif_rand_int(const int low, const int high)
 
 
 
+#define INDEX_BASE 0
 static inline int res_sampler(const len_t m, const len_t k, len_t *samp)
 {
   len_t i, j;
   
   for (i=0; i<k; i++)
-    samp[i] = i + 1;
+    samp[i] = i + INDEX_BASE;
   
   GetRNGstate();
   
@@ -26,7 +27,7 @@ static inline int res_sampler(const len_t m, const len_t k, len_t *samp)
   {
     j = unif_rand_int(0, i-1);
     if (j < k)
-      samp[j] = i + 1;
+      samp[j] = i + INDEX_BASE;
   }
   
   PutRNGstate();

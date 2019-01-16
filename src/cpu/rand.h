@@ -14,7 +14,7 @@ static inline int unif_rand_int(const int low, const int high)
 
 
 #define INDEX_BASE 0
-static inline int res_sampler(const len_t m, const len_t k, len_t *samp)
+static inline int reservoir_sampler(const len_t m, const len_t k, len_t *samp)
 {
   len_t i, j;
   

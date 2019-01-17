@@ -17,7 +17,7 @@
 typedef struct shaq
 {
   len_t nrows;
-  len_t ncols;
+  int ncols;
   int nrows_local;
   double *restrict data;
   MPI_Comm comm;

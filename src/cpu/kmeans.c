@@ -25,14 +25,45 @@ static inline void add1(const int n, int *const x)
 
 static inline void kmeans_init(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
 {
-  const int n = x->nrows_local;
+  const int n = NROWS_LOCAL(x);
   const int k = opts->k;
   
-  uint64_t nb4 = get_numbefore(x->nrows_local, x->comm);
+  int rank;
+  MPI_Comm_rank(COMM(x), &rank);
   
+  len_t *rows = malloc(k * sizeof(*rows));
+  int *rows_local = malloc(k * sizeof(*rows_local));
   
+  uint64_t nb4 = get_numbefore(NROWS_LOCAL(x), x->comm);
   
-  int check = MPI_Allreduce(MPI_IN_PLACE, km->centers, n*k, MPI_DOUBLE, MPI_SUM, x->comm);
+  if (rank == 0)
+  {
+    reservoir_sampler(NROWS(x), k, rows);
+    sort_insertion(k, rows);
+  }
+  else
+    memset(rows, 0, k*sizeof(*rows));
+  
+  MPI_Allreduce(MPI_IN_PLACE, rows, k, MPI_UNSIGNED_LONG_LONG, MPI_SUM, COMM(x));
+  
+  for (int i=0; i<k; i++)
+    rows_local[i] = nb4 <= rows[i] && rows[i] < nb4+NROWS_LOCAL(x);
+  
+  for (int row=0; row<k; row++)
+  {
+    if (rows_local[row])
+    {
+      for (int j=0; j<NCOLS(x); j++)
+        km->centers[j + row*NCOLS(x)] = DATA(x)[(rows[row]-nb4) + NROWS_LOCAL(x)*j];
+    }
+  }
+  
+  free(rows);
+  free(rows_local);
+  
+  MPI_Barrier(COMM(x));
+  
+  int check = MPI_Allreduce(MPI_IN_PLACE, km->centers, n*k, MPI_DOUBLE, MPI_SUM, COMM(x));
   // TODO
   // if (check != MPI_SUCCESS)
 }

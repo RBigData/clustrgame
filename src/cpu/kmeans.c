@@ -57,7 +57,7 @@ static inline void kmeans_update(const shaq *const restrict x, kmeans_vals *cons
 {
   int check;
   const int m = NROWS_LOCAL(x);
-  const int n = NCOLS_LOCAL(x);
+  const int n = NCOLS(x);
   const int k = opts->k;
   
   double *const restrict centers = km->centers;

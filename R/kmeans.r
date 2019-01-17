@@ -54,6 +54,8 @@ km_game = function(x, k=2, maxiter=100, seed=1234)
   maxiter = as.integer(maxiter)
   comm_ptr = pbdMPI::get.mpi.comm.ptr(.pbd_env$SPMD.CT$comm)
   
+  pbdMPI::comm.set.seed(seed, diff=FALSE)
+  
   data = DATA(x)
   if (!is.double(data))
     storage.mode(data) = "double"

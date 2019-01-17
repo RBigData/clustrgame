@@ -36,15 +36,8 @@ static inline void kmeans_init(const shaq *const restrict x, kmeans_vals *const 
   
   uint64_t nb4 = get_numbefore(NROWS_LOCAL(x), x->comm);
   
-  if (rank == 0)
-  {
-    reservoir_sampler(NROWS(x), k, rows);
-    sort_insertion(k, rows);
-  }
-  else
-    memset(rows, 0, k*sizeof(*rows));
-  
-  MPI_Allreduce(MPI_IN_PLACE, rows, k, MPI_UNSIGNED_LONG_LONG, MPI_SUM, COMM(x));
+  reservoir_sampler(NROWS(x), k, rows);
+  sort_insertion(k, rows);
   
   for (int i=0; i<k; i++)
     rows_local[i] = nb4 <= rows[i] && rows[i] < nb4+NROWS_LOCAL(x);
@@ -157,6 +150,8 @@ static inline int kmeans(const shaq *const restrict x, kmeans_vals *const restri
 {
   int niters;
   kmeans_init(x, km, opts);
+  
+  exit(1);
   
   int *nlabels = malloc(opts->k * sizeof(*nlabels));
   if (nlabels == NULL)

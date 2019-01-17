@@ -46,8 +46,6 @@ static inline void kmeans_init(const shaq *const restrict x, kmeans_vals *const 
   free(rows);
   free(rows_local);
   
-  MPI_Barrier(COMM(x));
-  
   int check = MPI_Allreduce(MPI_IN_PLACE, km->centers, n*k, MPI_DOUBLE, MPI_SUM, COMM(x));
   // TODO
   // if (check != MPI_SUCCESS)
@@ -62,36 +60,40 @@ static inline void kmeans_update(const shaq *const restrict x, kmeans_vals *cons
   const int n = NCOLS_LOCAL(x);
   const int k = opts->k;
   
-  memset(km->centers, 0, n*k*sizeof(*km->centers));
+  double *const restrict centers = km->centers;
+  int *const restrict labels = km->labels;
+  int *const restrict nlabels = km->nlabels;
+  
+  memset(centers, 0, n*k*sizeof(*centers));
   for (int j=0; j<n; j++)
   {
     for (int i=0; i<m; i++)
-      km->centers[j + n*km->labels[i]] += DATA(x)[i + m*j];
+      centers[j + n*labels[i]] += DATA(x)[i + m*j];
   }
   
-  check = MPI_Allreduce(MPI_IN_PLACE, km->centers, n*k, MPI_DOUBLE, MPI_SUM, x->comm);
-  if (check != MPI_SUCCESS)
-  {
-    free(km->nlabels);
-    R_mpi_throw_err(check, x->comm);
-  }
+  check = MPI_Allreduce(MPI_IN_PLACE, centers, n*k, MPI_DOUBLE, MPI_SUM, COMM(x));
+  // if (check != MPI_SUCCESS)
+  // {
+  //   free(nlabels);
+  //   R_mpi_throw_err(check, COMM(x));
+  // }
   
   
-  memset(km->nlabels, 0, k*sizeof(*km->nlabels));
+  memset(nlabels, 0, k*sizeof(*nlabels));
   for (int i=0; i<m; i++)
-    km->nlabels[km->labels[i]]++;
+    nlabels[labels[i]]++;
   
-  check = MPI_Allreduce(MPI_IN_PLACE, km->nlabels, k, MPI_INTEGER, MPI_SUM, x->comm);
-  if (check != MPI_SUCCESS)
-  {
-    free(km->nlabels);
-    R_mpi_throw_err(check, x->comm);
-  }
+  check = MPI_Allreduce(MPI_IN_PLACE, nlabels, k, MPI_INTEGER, MPI_SUM, COMM(x));
+  // if (check != MPI_SUCCESS)
+  // {
+  //   free(nlabels);
+  //   R_mpi_throw_err(check, COMM(x));
+  // }
     
   for (int j=0; j<k; j++)
   {
     for (int i=0; i<n; i++)
-      km->centers[i + n*j] /= (double)km->nlabels[j];
+      centers[i + n*j] /= (double)nlabels[j];
   }
 }
 
@@ -124,19 +126,14 @@ static inline int kmeans_assign_single(const int m, const int n, const int k, co
 
 
 
-
 static inline void kmeans_assign(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
 {
   const int m = NROWS_LOCAL(x);
-  const int n = NCOLS_LOCAL(x);
+  const int n = NCOLS(x);
   const int k = opts->k;
   
-  const double *const restrict x_ptr = DATA(x);
-  const double *const restrict centers = km->centers;
-  int *const restrict labels = km->labels;
-  
   for (int i=0; i<m; i++)
-    labels[i] = kmeans_assign_single(m, n, k, x_ptr+i, centers);
+    km->labels[i] = kmeans_assign_single(m, n, k, DATA(x)+i, km->centers);
 }
 
 
@@ -177,9 +174,12 @@ static inline int kmeans(const shaq *const restrict x, kmeans_vals *const restri
   km->nlabels = NULL;
   
   if (!opts->zero_indexed)
-    add1(x->nrows_local, km->labels);
+    add1(NROWS_LOCAL(x), km->labels);
   
-  return niters+1;
+  if (niters < opts->maxiter)
+    niters++;
+  
+  return niters;
 }
 
 

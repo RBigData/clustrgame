@@ -54,12 +54,13 @@ km_game = function(x, k=2, maxiter=100, seed=1234)
   maxiter = as.integer(maxiter)
   comm_ptr = pbdMPI::get.mpi.comm.ptr(.pbd_env$SPMD.CT$comm)
   
-  if (!is.double(DATA(x)))
-    storage.mode(x@Data) = "double"
+  data = DATA(x)
+  if (!is.double(data))
+    storage.mode(data) = "double"
   
   m = nrow(x)
   m = as.integer(m) # FIXME
   
-  ret = .Call(R_kmeans, DATA(x), m, k, maxiter, comm_ptr)
+  ret = .Call(R_kmeans, data, m, k, maxiter, comm_ptr)
   ret
 }

@@ -17,7 +17,8 @@
 
 static inline void kmeans_init(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
 {
-  const int n = NROWS_LOCAL(x);
+  const int m = NROWS_LOCAL(x);
+  const int n = NCOLS(x);
   const int k = opts->k;
   
   int rank;
@@ -26,20 +27,20 @@ static inline void kmeans_init(const shaq *const restrict x, kmeans_vals *const 
   len_t *rows = malloc(k * sizeof(*rows));
   int *rows_local = malloc(k * sizeof(*rows_local));
   
-  uint64_t nb4 = get_numbefore(NROWS_LOCAL(x), x->comm);
+  uint64_t nb4 = get_numbefore(m, x->comm);
   
   reservoir_sampler(NROWS(x), k, rows);
   sort_insertion(k, rows);
   
   for (int i=0; i<k; i++)
-    rows_local[i] = nb4 <= rows[i] && rows[i] < nb4+NROWS_LOCAL(x);
+    rows_local[i] = nb4 <= rows[i] && rows[i] < nb4+m;
   
   for (int row=0; row<k; row++)
   {
     if (rows_local[row])
     {
-      for (int j=0; j<NCOLS(x); j++)
-        km->centers[j + row*NCOLS(x)] = DATA(x)[(rows[row]-nb4) + NROWS_LOCAL(x)*j];
+      for (int j=0; j<n; j++)
+        km->centers[j + row*n] = DATA(x)[(rows[row]-nb4) + m*j];
     }
   }
   

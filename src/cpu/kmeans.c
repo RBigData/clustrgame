@@ -23,6 +23,25 @@ static inline void add1(const int n, int *const x)
 
 
 
+#define FALSE 0
+#define TRUE 1
+
+#define EPS 1e-8
+
+static inline int all_equal(const int len, const double *const restrict x, const double *const restrict y)
+{
+  double mad = 0.0;
+  
+  for (int i=0; i<len; i++)
+    mad += x[i] - y[i];
+  
+  mad /= ((double) len);
+  
+  return mad > EPS ? FALSE : TRUE;
+}
+
+
+
 static inline void kmeans_init(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
 {
   const int n = NROWS_LOCAL(x);
@@ -153,29 +172,41 @@ static inline void kmeans_assign(const shaq *const restrict x, kmeans_vals *cons
 static inline int kmeans(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
 {
   int niters;
-  kmeans_init(x, km, opts);
+  const int k = opts->k;
+  const int nk = NCOLS(x) * k;
   
-  int *nlabels = malloc(opts->k * sizeof(*nlabels));
+  int *nlabels = malloc(k * sizeof(*nlabels));
   if (nlabels == NULL)
     error("OOM");
   km->nlabels = nlabels;
   
+  double *centers_old = malloc(nk * sizeof(*centers_old));
+  memset(centers_old, 0, nk*sizeof(*centers_old));
+  
+  kmeans_init(x, km, opts);
+  kmeans_assign(x, km, opts);
   
   for (niters=0; niters<opts->maxiter; niters++)
   {
     kmeans_update(x, km, opts);
+    kmeans_assign(x, km, opts);
     
-    // TODO check for convergence
+    int check = all_equal(nk, km->centers, centers_old);
+    if (check == TRUE)
+      break;
+    
+    memcpy(centers_old, km->centers, nk*sizeof(*centers_old));
   }
   
   
+  free(centers_old);
   free(nlabels);
   km->nlabels = NULL;
   
   if (!opts->zero_indexed)
     add1(x->nrows_local, km->labels);
   
-  return niters;
+  return niters+1;
 }
 
 
@@ -197,6 +228,9 @@ SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
   PROTECT(centers = allocMatrix(REALSXP, n, k));
   PROTECT(labels = allocVector(INTSXP, m_local));
   PROTECT(niters = allocVector(INTSXP, 1));
+  
+  PROTECT(ret = allocVector(VECSXP, 3));
+  PROTECT(ret_names = allocVector(STRSXP, 3));
   
   x.nrows = INTEGER(m)[0];
   x.ncols = n;

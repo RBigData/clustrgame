@@ -63,6 +63,8 @@ km_game = function(x, k=2, maxiter=100, seed=1234)
   m = nrow(x)
   m = as.integer(m) # FIXME
   
-  ret = .Call(R_kmeans, data, m, k, maxiter, comm_ptr)
-  ret
+  out = .Call(R_kmeans, data, m, k, maxiter, comm_ptr)
+  
+  labels.shaq = shaq(matrix(out$labels), ncols=1L, checks=FALSE)
+  list(centers=out$centers, labels=labels.shaq, iterations=out$niters)
 }

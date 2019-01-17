@@ -133,14 +133,18 @@ static inline int kmeans_assign_single(const int m, const int n, const int k, co
 
 
 
-static inline int kmeans_assign(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
+static inline void kmeans_assign(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
 {
   const int m = NROWS_LOCAL(x);
   const int n = NCOLS_LOCAL(x);
   const int k = opts->k;
   
+  const double *const restrict x_ptr = DATA(x);
+  const double *const restrict centers = km->centers;
+  int *const restrict labels = km->labels;
+  
   for (int i=0; i<m; i++)
-    km->labels[i] = kmeans_assign_single(m, n, k, x->data+i, km->centers);
+    labels[i] = kmeans_assign_single(m, n, k, x_ptr+i, centers);
 }
 
 
@@ -150,8 +154,6 @@ static inline int kmeans(const shaq *const restrict x, kmeans_vals *const restri
 {
   int niters;
   kmeans_init(x, km, opts);
-  
-  exit(1);
   
   int *nlabels = malloc(opts->k * sizeof(*nlabels));
   if (nlabels == NULL)

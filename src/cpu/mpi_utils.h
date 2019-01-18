@@ -7,12 +7,24 @@
 
 #define MPI_CHECK(comm, check) if (check != MPI_SUCCESS) R_mpi_throw_err(check, comm);
 
-static inline void R_mpi_throw_err(int check, const MPI_Comm comm)
+static inline void throw_err_mpi(int check, const MPI_Comm comm)
 {
   int rank;
   MPI_Comm_rank(comm, &rank);
   if (rank == 0)
     error("MPI_Allreduce returned error code %d\n", check);
+  else
+    error(""); // FIXME
+}
+
+
+
+static inline void throw_err_malloc(const MPI_Comm comm)
+{
+  int rank;
+  MPI_Comm_rank(comm, &rank);
+  if (rank == 0)
+    error("Out of memory\n");
   else
     error(""); // FIXME
 }

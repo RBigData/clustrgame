@@ -12,10 +12,17 @@
 #include "utils.h"
 
 
-#define MALLOC_FAIL -1
+#define FREE(x) {if(x)free(x);}
+
+#define ERROR_NONE 0
+#define ERROR_MALLOC -1
+#define ERROR_MPI -2
+
+#define CHECKMPI(x) {if((x) != MPI_SUCCESS){return ERROR_MPI;}}
+#define CHECKRET(x) {if((x) != ERROR_NONE){goto cleanup;}}
 
 
-static inline void kmeans_init(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
+static inline int kmeans_init(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
 {
   const int m = NROWS_LOCAL(x);
   const int n = NCOLS(x);
@@ -26,6 +33,12 @@ static inline void kmeans_init(const shaq *const restrict x, kmeans_vals *const 
   
   len_t *rows = malloc(k * sizeof(*rows));
   int *rows_local = malloc(k * sizeof(*rows_local));
+  if (rows == NULL || rows_local == NULL)
+  {
+    FREE(rows);
+    FREE(rows_local);
+    return ERROR_MALLOC;
+  }
   
   uint64_t nb4 = get_numbefore(m, x->comm);
   
@@ -48,13 +61,13 @@ static inline void kmeans_init(const shaq *const restrict x, kmeans_vals *const 
   free(rows_local);
   
   int check = MPI_Allreduce(MPI_IN_PLACE, km->centers, n*k, MPI_DOUBLE, MPI_SUM, COMM(x));
-  // TODO
-  // if (check != MPI_SUCCESS)
+  CHECKMPI(check);
+  return ERROR_NONE;
 }
 
 
 
-static inline void kmeans_update(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
+static inline int kmeans_update(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
 {
   int check;
   const int m = NROWS_LOCAL(x);
@@ -73,11 +86,7 @@ static inline void kmeans_update(const shaq *const restrict x, kmeans_vals *cons
   }
   
   check = MPI_Allreduce(MPI_IN_PLACE, centers, n*k, MPI_DOUBLE, MPI_SUM, COMM(x));
-  // if (check != MPI_SUCCESS)
-  // {
-  //   free(nlabels);
-  //   R_mpi_throw_err(check, COMM(x));
-  // }
+  CHECKMPI(check);
   
   
   memset(nlabels, 0, k*sizeof(*nlabels));
@@ -85,17 +94,15 @@ static inline void kmeans_update(const shaq *const restrict x, kmeans_vals *cons
     nlabels[labels[i]]++;
   
   check = MPI_Allreduce(MPI_IN_PLACE, nlabels, k, MPI_INTEGER, MPI_SUM, COMM(x));
-  // if (check != MPI_SUCCESS)
-  // {
-  //   free(nlabels);
-  //   R_mpi_throw_err(check, COMM(x));
-  // }
-    
+  CHECKMPI(check);
+  
   for (int j=0; j<k; j++)
   {
     for (int i=0; i<n; i++)
       centers[i + n*j] /= (double)nlabels[j];
   }
+  
+  return ERROR_NONE;
 }
 
 
@@ -142,24 +149,31 @@ static inline void kmeans_assign(const shaq *const restrict x, kmeans_vals *cons
 // returns number of iterations
 static inline int kmeans(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
 {
+  int ret;
   int niters;
   const int k = opts->k;
   const int nk = NCOLS(x) * k;
   
   int *nlabels = malloc(k * sizeof(*nlabels));
-  if (nlabels == NULL)
-    error("OOM");
   km->nlabels = nlabels;
   
   double *centers_old = malloc(nk * sizeof(*centers_old));
   memset(centers_old, 0, nk*sizeof(*centers_old));
   
-  kmeans_init(x, km, opts);
+  if (nlabels == NULL || centers_old == NULL)
+  {
+    ret = ERROR_MALLOC;
+    goto cleanup;
+  }
+  
+  ret = kmeans_init(x, km, opts);
+  CHECKRET(ret);
   kmeans_assign(x, km, opts);
   
   for (niters=0; niters<opts->maxiter; niters++)
   {
-    kmeans_update(x, km, opts);
+    ret = kmeans_update(x, km, opts);
+    CHECKRET(ret);
     kmeans_assign(x, km, opts);
     
     int check = all_equal(nk, km->centers, centers_old);
@@ -170,17 +184,21 @@ static inline int kmeans(const shaq *const restrict x, kmeans_vals *const restri
   }
   
   
-  free(centers_old);
-  free(nlabels);
-  km->nlabels = NULL;
-  
   if (!opts->zero_indexed)
     add1(NROWS_LOCAL(x), km->labels);
   
   if (niters < opts->maxiter)
     niters++;
   
-  return niters;
+  ret = niters;
+  
+  
+cleanup:
+  FREE(centers_old);
+  FREE(nlabels);
+  km->nlabels = NULL;
+  
+  return ret;
 }
 
 
@@ -188,7 +206,7 @@ static inline int kmeans(const shaq *const restrict x, kmeans_vals *const restri
 SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
 {
   SEXP ret, ret_names;
-  SEXP centers, labels, niters;
+  SEXP ret_centers, ret_labels, ret_niters;
   shaq x;
   kmeans_vals km;
   kmeans_opts opts;
@@ -199,9 +217,9 @@ SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
   const int n = ncols(data);
   const int k = INTEGER(k_)[0];
   
-  PROTECT(centers = allocMatrix(REALSXP, n, k));
-  PROTECT(labels = allocVector(INTSXP, m_local));
-  PROTECT(niters = allocVector(INTSXP, 1));
+  PROTECT(ret_centers = allocMatrix(REALSXP, n, k));
+  PROTECT(ret_labels = allocVector(INTSXP, m_local));
+  PROTECT(ret_niters = allocVector(INTSXP, 1));
   
   PROTECT(ret = allocVector(VECSXP, 3));
   PROTECT(ret_names = allocVector(STRSXP, 3));
@@ -212,18 +230,25 @@ SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
   x.data = REAL(data);
   x.comm = comm;
   
-  km.centers = REAL(centers);
-  km.labels = INTEGER(labels);
+  km.centers = REAL(ret_centers);
+  km.labels = INTEGER(ret_labels);
   
   opts.k = k;
   opts.maxiter = INTEGER(maxiter)[0];
   opts.zero_indexed = 0;
   
-  INTEGER(niters)[0] = kmeans(&x, &km, &opts);
+  int check = kmeans(&x, &km, &opts);
   
-  SET_VECTOR_ELT(ret, 0, centers);
-  SET_VECTOR_ELT(ret, 1, labels);
-  SET_VECTOR_ELT(ret, 2, niters);
+  if (check == ERROR_MPI)
+    throw_err_mpi(check, comm);
+  else if (check == ERROR_MALLOC)
+    throw_err_malloc(comm);
+  
+  INTEGER(ret_niters)[0] = check;
+  
+  SET_VECTOR_ELT(ret, 0, ret_centers);
+  SET_VECTOR_ELT(ret, 1, ret_labels);
+  SET_VECTOR_ELT(ret, 2, ret_niters);
   SET_STRING_ELT(ret_names, 0, mkChar("centers"));
   SET_STRING_ELT(ret_names, 1, mkChar("labels"));
   SET_STRING_ELT(ret_names, 2, mkChar("niters"));

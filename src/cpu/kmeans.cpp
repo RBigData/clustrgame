@@ -1,15 +1,22 @@
+#ifndef restrict
+#define restrict __restrict__
+#endif
+
+#define OMPI_SKIP_MPICXX 1
+#include <mpi.h>
+
 // #include <float/float32.h>
 // #include <float/slapack.h>
-#include <mpi.h>
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
 #include <Rinternals.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
-#include "kmeans.h"
+#include "kmeans.hh"
 #include "mpi_utils.h"
 #include "rand.h"
-#include "utils.h"
+#include "utils.hh"
 
 
 #define FREE(x) {if(x)free(x);}
@@ -22,7 +29,8 @@
 #define CHECKRET(x) {if((x) != ERROR_NONE){goto cleanup;}}
 
 
-static inline int kmeans_init(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
+template <typename REAL>
+static inline int kmeans_init(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *const restrict km, const kmeans_opts *const restrict opts)
 {
   const int m = NROWS_LOCAL(x);
   const int n = NCOLS(x);
@@ -31,8 +39,8 @@ static inline int kmeans_init(const shaq *const restrict x, kmeans_vals *const r
   int rank;
   MPI_Comm_rank(COMM(x), &rank);
   
-  len_t *rows = malloc(k * sizeof(*rows));
-  int *rows_local = malloc(k * sizeof(*rows_local));
+  len_t *rows = (len_t*) malloc(k * sizeof(*rows));
+  int *rows_local = (int*) malloc(k * sizeof(*rows_local));
   if (rows == NULL || rows_local == NULL)
   {
     FREE(rows);
@@ -60,21 +68,22 @@ static inline int kmeans_init(const shaq *const restrict x, kmeans_vals *const r
   free(rows);
   free(rows_local);
   
-  int check = MPI_Allreduce(MPI_IN_PLACE, km->centers, n*k, MPI_DOUBLE, MPI_SUM, COMM(x));
+  int check = allreduce_real(n*k, km->centers, COMM(x));
   CHECKMPI(check);
   return ERROR_NONE;
 }
 
 
 
-static inline int kmeans_update(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
+template <typename REAL>
+static inline int kmeans_update(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *const restrict km, const kmeans_opts *const restrict opts)
 {
   int check;
   const int m = NROWS_LOCAL(x);
   const int n = NCOLS(x);
   const int k = opts->k;
   
-  double *const restrict centers = km->centers;
+  REAL *const restrict centers = km->centers;
   int *const restrict labels = km->labels;
   int *const restrict nlabels = km->nlabels;
   
@@ -85,7 +94,7 @@ static inline int kmeans_update(const shaq *const restrict x, kmeans_vals *const
       centers[j + n*labels[i]] += DATA(x)[i + m*j];
   }
   
-  check = MPI_Allreduce(MPI_IN_PLACE, centers, n*k, MPI_DOUBLE, MPI_SUM, COMM(x));
+  check = allreduce_real(n*k, centers, COMM(x));
   CHECKMPI(check);
   
   
@@ -107,18 +116,19 @@ static inline int kmeans_update(const shaq *const restrict x, kmeans_vals *const
 
 
 
-static inline int kmeans_assign_single(const int m, const int n, const int k, const double *const restrict x, const double *const restrict centers)
+template <typename REAL>
+static inline int kmeans_assign_single(const int m, const int n, const int k, const REAL *const restrict x, const REAL *const restrict centers)
 {
-  double min = INFINITY;
+  REAL min = INFINITY;
   int min_ind = -1;
   
   for (int j=0; j<k; j++)
   {
-    double test = 0.0;
+    REAL test = 0.0;
     
     for (int i=0; i<n; i++)
     {
-      const double tmp = x[m*i] - centers[i + n*j];
+      const REAL tmp = x[m*i] - centers[i + n*j];
       test += tmp*tmp;
     }
     
@@ -134,7 +144,8 @@ static inline int kmeans_assign_single(const int m, const int n, const int k, co
 
 
 
-static inline void kmeans_assign(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
+template <typename REAL>
+static inline void kmeans_assign(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *const restrict km, const kmeans_opts *const restrict opts)
 {
   const int m = NROWS_LOCAL(x);
   const int n = NCOLS(x);
@@ -147,17 +158,18 @@ static inline void kmeans_assign(const shaq *const restrict x, kmeans_vals *cons
 
 
 // returns number of iterations
-static inline int kmeans(const shaq *const restrict x, kmeans_vals *const restrict km, const kmeans_opts *const restrict opts)
+template <typename REAL>
+static inline int kmeans(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *const restrict km, const kmeans_opts *const restrict opts)
 {
   int ret;
   int niters;
   const int k = opts->k;
   const int nk = NCOLS(x) * k;
   
-  int *nlabels = malloc(k * sizeof(*nlabels));
+  int *nlabels = (int*) malloc(k * sizeof(*nlabels));
   km->nlabels = nlabels;
   
-  double *centers_old = malloc(nk * sizeof(*centers_old));
+  REAL *centers_old = (REAL*) malloc(nk * sizeof(*centers_old));
   memset(centers_old, 0, nk*sizeof(*centers_old));
   
   if (nlabels == NULL || centers_old == NULL)
@@ -203,12 +215,12 @@ cleanup:
 
 
 
-SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
+extern "C" SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
 {
   SEXP ret, ret_names;
   SEXP ret_centers, ret_labels, ret_niters;
-  shaq x;
-  kmeans_vals km;
+  shaq<double> x;
+  kmeans_vals<double> km;
   kmeans_opts opts;
   
   MPI_Comm comm = *(get_mpi_comm_from_Robj(comm_));

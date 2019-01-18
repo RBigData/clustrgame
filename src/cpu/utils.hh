@@ -5,7 +5,21 @@
 #define FALSE 0
 #define TRUE 1
 
-#define EPS 1e-8
+#define SQRT_EPS_FLT 1e-4f
+#define SQRT_EPS_DBL 1e-8
+
+
+static inline int all_equal(const int len, const float *const restrict x, const float *const restrict y)
+{
+  float mad = 0.0;
+  
+  for (int i=0; i<len; i++)
+    mad += x[i] - y[i];
+  
+  mad /= ((float) len);
+  
+  return mad > SQRT_EPS_FLT ? FALSE : TRUE;
+}
 
 static inline int all_equal(const int len, const double *const restrict x, const double *const restrict y)
 {
@@ -16,7 +30,7 @@ static inline int all_equal(const int len, const double *const restrict x, const
   
   mad /= ((double) len);
   
-  return mad > EPS ? FALSE : TRUE;
+  return mad > SQRT_EPS_DBL ? FALSE : TRUE;
 }
 
 

@@ -14,21 +14,23 @@
 #define DATA(x) (x->data)
 #define COMM(x) (x->comm)
 
-typedef struct shaq
+template <typename REAL>
+struct shaq
 {
   len_t nrows;
   int ncols;
   int nrows_local;
-  double *restrict data;
+  REAL *restrict data;
   MPI_Comm comm;
-} shaq;
+};
 
-typedef struct kmeans_vals
+template <typename REAL>
+struct kmeans_vals
 {
-  double *restrict centers;
+  REAL *restrict centers;
   int *restrict labels;
   int *restrict nlabels;
-} kmeans_vals;
+};
 
 typedef struct kmeans_opts
 {

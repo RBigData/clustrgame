@@ -2,7 +2,7 @@ FLOAT_LIBS = `${R_HOME}/bin/Rscript -e "float:::ldflags()"`
 FLOAT_INCL = `${R_HOME}/bin/Rscript -e "float:::cppflags()"`
 
 SPMD_CPPFLAGS = @SPMD_CPPFLAGS@
-SPMD_LDFLAGS = @SPMD_LDFLAGS@
+SPMD_LDFLAGS = @SPMD_LDFLAGS@ -lmpi_cxx
 
 R_CPPFLAGS = @R_CPPFLAGS@
 
@@ -20,6 +20,7 @@ BACKEND = @BACKEND@
 GLM_OBJS = cpu/init.o cpu/kmeans.o
 
 PKG_CFLAGS = $(SPMD_CPPFLAGS)
+PKG_CXXFLAGS = $(SPMD_CPPFLAGS)
 PKG_LIBS = $(FLOAT_LIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) $(SPMD_LDFLAGS) $(PKG_LIBS_ADDFLAGS)
 
 

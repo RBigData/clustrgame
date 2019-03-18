@@ -4,27 +4,22 @@
 
 #define OMPI_SKIP_MPICXX 1
 #include <mpi.h>
-
+#include <Rinternals.h>
 // #include <float/float32.h>
 // #include <float/slapack.h>
+
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <Rinternals.h>
 
+#include "../common.h"
 #include "../mpi_utils.hh"
 #include "../types.h"
 #include "kmeans.hh"
 #include "rand.h"
 #include "utils.hh"
 
-
-#define FREE(x) {if(x)free(x);}
-
-#define ERROR_NONE 0
-#define ERROR_MALLOC -1
-#define ERROR_MPI -2
 
 #define CHECKMPI(x) {if((x) != MPI_SUCCESS){return ERROR_MPI;}}
 #define CHECKRET(x) {if((x) != ERROR_NONE){goto cleanup;}}

@@ -14,9 +14,11 @@
 #include <cstring>
 
 #include "../common.h"
-#include "../mpi_utils.hh"
 #include "../types.h"
-#include "kmeans.hh"
+
+#include "../kmeans.hh"
+#include "../mpi_utils.hh"
+
 #include "rand.h"
 #include "utils.hh"
 

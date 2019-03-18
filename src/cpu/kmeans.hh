@@ -2,10 +2,10 @@
 #define KMEANS_H_
 
 
+#include <cstdint>
 #include <mpi.h>
-#include <stdint.h>
 
-#include "types.h"
+#include "../types.h"
 
 #define NROWS(x) (x->nrows)
 #define NCOLS(x) (x->ncols)

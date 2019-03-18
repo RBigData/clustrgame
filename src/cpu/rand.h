@@ -3,7 +3,8 @@
 
 
 #include <R_ext/Random.h>
-#include "types.h"
+
+#include "../types.h"
 
 
 static inline int unif_rand_int(const int low, const int high)

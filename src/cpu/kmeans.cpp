@@ -13,8 +13,9 @@
 #include <cstring>
 #include <Rinternals.h>
 
+#include "../mpi_utils.hh"
+#include "../types.h"
 #include "kmeans.hh"
-#include "mpi_utils.h"
 #include "rand.h"
 #include "utils.hh"
 

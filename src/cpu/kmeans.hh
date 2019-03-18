@@ -18,8 +18,8 @@ template <typename REAL>
 struct shaq
 {
   len_t nrows;
-  int ncols;
-  int nrows_local;
+  len_local_t ncols;
+  len_local_t nrows_local;
   REAL *restrict data;
   MPI_Comm comm;
 };

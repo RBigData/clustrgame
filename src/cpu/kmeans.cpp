@@ -28,15 +28,15 @@
 template <typename REAL>
 static inline int kmeans_init(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *const restrict km, const kmeans_opts *const restrict opts)
 {
-  const int m = NROWS_LOCAL(x);
-  const int n = NCOLS(x);
+  const len_local_t m = NROWS_LOCAL(x);
+  const len_local_t n = NCOLS(x);
   const int k = opts->k;
   
   int rank;
   MPI_Comm_rank(COMM(x), &rank);
   
   len_t *rows = (len_t*) malloc(k * sizeof(*rows));
-  int *rows_local = (int*) malloc(k * sizeof(*rows_local));
+  len_local_t *rows_local = (len_local_t*) malloc(k * sizeof(*rows_local));
   if (rows == NULL || rows_local == NULL)
   {
     FREE(rows);
@@ -56,7 +56,7 @@ static inline int kmeans_init(const shaq<REAL> *const restrict x, kmeans_vals<RE
   {
     if (rows_local[row])
     {
-      for (int j=0; j<n; j++)
+      for (len_local_t j=0; j<n; j++)
         km->centers[j + row*n] = DATA(x)[(rows[row]-nb4) + m*j];
     }
   }
@@ -75,8 +75,8 @@ template <typename REAL>
 static inline int kmeans_update(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *const restrict km, const kmeans_opts *const restrict opts)
 {
   int check;
-  const int m = NROWS_LOCAL(x);
-  const int n = NCOLS(x);
+  const len_local_t m = NROWS_LOCAL(x);
+  const len_local_t n = NCOLS(x);
   const int k = opts->k;
   
   REAL *const restrict centers = km->centers;
@@ -84,9 +84,9 @@ static inline int kmeans_update(const shaq<REAL> *const restrict x, kmeans_vals<
   int *const restrict nlabels = km->nlabels;
   
   memset(centers, 0, n*k*sizeof(*centers));
-  for (int j=0; j<n; j++)
+  for (len_local_t j=0; j<n; j++)
   {
-    for (int i=0; i<m; i++)
+    for (len_local_t i=0; i<m; i++)
       centers[j + n*labels[i]] += DATA(x)[i + m*j];
   }
   
@@ -103,7 +103,7 @@ static inline int kmeans_update(const shaq<REAL> *const restrict x, kmeans_vals<
   
   for (int j=0; j<k; j++)
   {
-    for (int i=0; i<n; i++)
+    for (len_local_t i=0; i<n; i++)
       centers[i + n*j] /= (double)nlabels[j];
   }
   
@@ -122,7 +122,7 @@ static inline int kmeans_assign_single(const int m, const int n, const int k, co
   {
     REAL test = 0.0;
     
-    for (int i=0; i<n; i++)
+    for (len_local_t i=0; i<n; i++)
     {
       const REAL tmp = x[m*i] - centers[i + n*j];
       test += tmp*tmp;
@@ -143,11 +143,11 @@ static inline int kmeans_assign_single(const int m, const int n, const int k, co
 template <typename REAL>
 static inline void kmeans_assign(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *const restrict km, const kmeans_opts *const restrict opts)
 {
-  const int m = NROWS_LOCAL(x);
-  const int n = NCOLS(x);
+  const len_local_t m = NROWS_LOCAL(x);
+  const len_local_t n = NCOLS(x);
   const int k = opts->k;
   
-  for (int i=0; i<m; i++)
+  for (len_local_t i=0; i<m; i++)
     km->labels[i] = kmeans_assign_single(m, n, k, DATA(x)+i, km->centers);
 }
 
@@ -160,7 +160,7 @@ static inline int kmeans(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *
   int ret;
   int niters;
   const int k = opts->k;
-  const int nk = NCOLS(x) * k;
+  const len_local_t nk = NCOLS(x) * k;
   
   int *nlabels = (int*) malloc(k * sizeof(*nlabels));
   km->nlabels = nlabels;

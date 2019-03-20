@@ -5,7 +5,7 @@
 #include "cpu/kmeans_cpu.hh"
 
 #include "common.h"
-#include "kmeans.hh"
+#include "kmeans_types.hh"
 
 
 extern "C" SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)

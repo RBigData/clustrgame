@@ -17,7 +17,7 @@
 #include "../restrict.h"
 #include "../types.h"
 
-#include "../kmeans.hh"
+#include "../kmeans_types.hh"
 #include "../mpi_utils.hh"
 
 #include "rand.h"

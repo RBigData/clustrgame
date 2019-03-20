@@ -2,10 +2,11 @@
 #define KMEANS_H_
 
 
-#include <cstdint>
+#define OMPI_SKIP_MPICXX 1
 #include <mpi.h>
+#include <cstdint>
 
-#include "../types.h"
+#include "types.h"
 
 #define NROWS(x) (x->nrows)
 #define NCOLS(x) (x->ncols)

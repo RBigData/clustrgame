@@ -13,9 +13,9 @@ BACKEND = @BACKEND@
 #	CUDA_CFLAGS = @CUDA_CFLAGS@
 #	CUDA_LDFLAGS = @CUDA_LDFLAGS@
 #	PKG_LIBS_ADDFLAGS = $(CUDA_LDFLAGS) -lcudart -lcublas
-#	GLM_OBJS = gpu/init.o gpu/kmeans.o
+#	GLM_OBJS = gpu/init.o
 #else
-#	GLM_OBJS = cpu/init.o cpu/kmeans.o
+#	GLM_OBJS = cpu/init.o
 #endif
 GLM_OBJS = cpu/init.o cpu/kmeans.o
 
@@ -24,7 +24,7 @@ PKG_CXXFLAGS = $(SPMD_CPPFLAGS)
 PKG_LIBS = $(FLOAT_LIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) $(SPMD_LDFLAGS) $(PKG_LIBS_ADDFLAGS)
 
 
-R_OBJS = clustrgame_native.o
+R_OBJS = clustrgame_native.o kmeans.o
 OBJECTS = $(GLM_OBJS) $(R_OBJS)
 
 

@@ -2,8 +2,9 @@
 #' 
 #' TODO
 #' 
-#' @import pbdMPI
 #' @import kazaam
+#' @importFrom pbdMPI comm.stop
+#' @importFrom float is.float
 #' 
 #' @name clustrgame-package
 #' @docType package

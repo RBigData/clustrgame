@@ -31,10 +31,10 @@ static inline void throw_err_malloc(const MPI_Comm comm)
 
 
 
-static inline MPI_Comm* get_mpi_comm_from_Robj(SEXP comm_)
+static inline MPI_Comm get_mpi_comm_from_Robj(SEXP comm_)
 {
   MPI_Comm *comm = (MPI_Comm*) R_ExternalPtrAddr(comm_);
-  return comm;
+  return *comm;
 }
 
 

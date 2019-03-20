@@ -2,10 +2,6 @@
 #define KMEANS_CPU_H_
 
 
-#ifndef restrict
-#define restrict __restrict__
-#endif
-
 #define OMPI_SKIP_MPICXX 1
 #include <mpi.h>
 #include <Rinternals.h>
@@ -18,6 +14,7 @@
 #include <cstring>
 
 #include "../common.h"
+#include "../restrict.h"
 #include "../types.h"
 
 #include "../kmeans.hh"

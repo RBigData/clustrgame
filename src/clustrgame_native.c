@@ -6,11 +6,11 @@
 #include <stdlib.h>
 
 extern SEXP R_clustrgame_init(SEXP comm_);
-extern SEXP R_kmeans(SEXP data, SEXP m, SEXP n, SEXP k, SEXP maxiter, SEXP comm_);
+extern SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_);
 
 static const R_CallMethodDef CallEntries[] = {
   {"R_clustrgame_init", (DL_FUNC) &R_clustrgame_init, 1},
-  {"R_kmeans", (DL_FUNC) &R_kmeans, 6},
+  {"R_kmeans", (DL_FUNC) &R_kmeans, 5},
   {NULL, NULL, 0}
 };
 

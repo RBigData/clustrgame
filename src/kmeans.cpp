@@ -16,7 +16,7 @@ extern "C" SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
   kmeans_vals<double> km;
   kmeans_opts opts;
   
-  MPI_Comm comm = *(get_mpi_comm_from_Robj(comm_));
+  MPI_Comm comm = get_mpi_comm_from_Robj(comm_);
   
   const int m_local = nrows(data);
   const int n = ncols(data);

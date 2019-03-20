@@ -17,7 +17,7 @@ BACKEND = @BACKEND@
 #else
 #	GLM_OBJS = cpu/init.o
 #endif
-GLM_OBJS = cpu/init.o cpu/kmeans.o
+GLM_OBJS = cpu/init.o
 
 PKG_CFLAGS = $(SPMD_CPPFLAGS)
 PKG_CXXFLAGS = $(SPMD_CPPFLAGS)

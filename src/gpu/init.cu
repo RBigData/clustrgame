@@ -1,10 +1,6 @@
 #include <cuda_runtime.h>
-#include <mpi.h>
-
-extern "C" {
 #include <Rinternals.h>
 #include "../mpi_utils.h"
-}
 
 
 extern "C" SEXP R_clustrgame_init(SEXP comm_)

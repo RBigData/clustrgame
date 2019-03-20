@@ -9,7 +9,8 @@
 #' @details
 #' The iterations stop either when the maximum number of iterations have been
 #' achieved, or when the centers in the current iteration are basically the same
-#' (within \code{1e-8}) as the centers from the previous iteration.
+#' (within \code{1e-8} for double precision and \code{1e-4} single precision)
+#' as the centers from the previous iteration.
 #' 
 #' For best performance, the data should be as balanced as possible across all
 #' MPI ranks.

@@ -23,4 +23,4 @@ BugReports: https://group.pbdr.org/
 MailingList: Please send questions and comments regarding pbdR to
     RBigData@gmail.com
 Maintainer: Drew Schmidt <wrathematics@gmail.com>
-RoxygenNote: 5.0.1
+RoxygenNote: 6.1.1

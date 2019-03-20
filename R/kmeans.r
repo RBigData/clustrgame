@@ -57,9 +57,14 @@ km_game = function(x, k=2, maxiter=100, seed=1234)
   
   pbdMPI::comm.set.seed(seed, diff=FALSE)
   
-  data = DATA(x)
-  if (!is.double(data))
-    storage.mode(data) = "double"
+  if (is.float(DATA(x)))
+    data = DATA(x)@Data
+  else
+  {
+    data = DATA(x)
+    if (!is.double(data))
+      storage.mode(data) = "double"
+  }
   
   m = nrow(x)
   m = as.integer(m) # FIXME

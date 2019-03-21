@@ -2,7 +2,7 @@ FLOAT_LIBS = `${R_HOME}/bin/Rscript -e "float:::ldflags()"`
 FLOAT_INCL = `${R_HOME}/bin/Rscript -e "float:::cppflags()"`
 
 SPMD_CPPFLAGS = @SPMD_CPPFLAGS@
-SPMD_LDFLAGS = @SPMD_LDFLAGS@ -lmpi_cxx
+SPMD_LDFLAGS = @SPMD_LDFLAGS@
 
 R_CPPFLAGS = @R_CPPFLAGS@
 

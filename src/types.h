@@ -1,5 +1,5 @@
-#ifndef KMEANS_TYPES_H_
-#define KMEANS_TYPES_H_
+#ifndef CLUSTRGAME_TYPES_H_
+#define CLUSTRGAME_TYPES_H_
 
 
 #ifdef _cplusplus

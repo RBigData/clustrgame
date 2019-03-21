@@ -1,5 +1,5 @@
-#ifndef KMEANS_COMMON_H_
-#define KMEANS_COMMON_H_
+#ifndef CLUSTRGAME_COMMON_H_
+#define CLUSTRGAME_COMMON_H_
 
 
 #define FREE(x) {if(x)free(x);}

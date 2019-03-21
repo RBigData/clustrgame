@@ -1,5 +1,5 @@
-#ifndef KMEANS_UTILS_H_
-#define KMEANS_UTILS_H_
+#ifndef CLUSTRGAME_UTILS_H_
+#define CLUSTRGAME_UTILS_H_
 
 
 #define FALSE 0

@@ -1,5 +1,5 @@
-#ifndef GLMRGAME_RESTRICT_H_
-#define GLMRGAME_RESTRICT_H_
+#ifndef CLUSTRGAME_RESTRICT_H_
+#define CLUSTRGAME_RESTRICT_H_
 
 
 #ifndef restrict

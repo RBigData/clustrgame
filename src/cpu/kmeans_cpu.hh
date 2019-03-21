@@ -1,5 +1,5 @@
-#ifndef KMEANS_CPU_H_
-#define KMEANS_CPU_H_
+#ifndef CLUSTRGAME_KMEANS_CPU_H_
+#define CLUSTRGAME_KMEANS_CPU_H_
 
 
 #include <cmath>

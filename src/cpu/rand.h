@@ -1,5 +1,5 @@
-#ifndef KMEANS_RAND_H_
-#define KMEANS_RAND_H_
+#ifndef CLUSTRGAME_RAND_H_
+#define CLUSTRGAME_RAND_H_
 
 
 #include <R_ext/Random.h>

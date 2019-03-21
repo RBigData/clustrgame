@@ -1,5 +1,5 @@
-#ifndef KMEANS_H_
-#define KMEANS_H_
+#ifndef CLUSTRGAME_KMEANS_TYPES_H_
+#define CLUSTRGAME_KMEANS_TYPES_H_
 
 
 #define OMPI_SKIP_MPICXX 1

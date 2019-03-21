@@ -1,5 +1,5 @@
-#ifndef _GLMRGAME_CU_UTILS_H_
-#define _GLMRGAME_CU_UTILS_H_
+#ifndef CLUSTRGAME_CU_UTILS_H_
+#define CLUSTRGAME_CU_UTILS_H_
 
 
 #include <cuda_runtime.h>

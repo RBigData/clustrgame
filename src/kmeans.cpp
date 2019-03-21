@@ -1,6 +1,5 @@
 #include <Rinternals.h>
-// #include <float/float32.h>
-// #include <float/slapack.h>
+#include <float/float32.h>
 
 #include "cpu/kmeans_cpu.hh"
 
@@ -48,7 +47,20 @@ extern "C" SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
   }
   else if (TYPEOF(data) == INTSXP)
   {
-    error("TODO");
+    PROTECT(ret_centers = allocMatrix(INTSXP, n, k));
+    
+    shaq<float> x;
+    x.nrows = INTEGER(m)[0];
+    x.ncols = n;
+    x.nrows_local = m_local;
+    x.data = FLOAT(data);
+    x.comm = comm;
+    
+    kmeans_vals<float> km;
+    km.centers = FLOAT(ret_centers);
+    km.labels = INTEGER(ret_labels);
+    
+    check = kmeans(&x, &km, &opts);
   }
   
   if (check == ERROR_MPI)

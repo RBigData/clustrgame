@@ -71,6 +71,9 @@ km_game = function(x, k=2, maxiter=100, seed=1234)
   
   out = .Call(R_kmeans, data, m, k, maxiter, comm_ptr)
   
+  if (is.float(DATA(x)))
+    out$centers = float32(out$centers)
+  
   labels.shaq = shaq(matrix(out$labels), ncols=1L, checks=FALSE)
   list(centers=out$centers, labels=labels.shaq, iterations=out$niters)
 }

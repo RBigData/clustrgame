@@ -182,8 +182,8 @@ static inline int kmeans(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *
     CHECKRET(ret);
     kmeans_assign(x, km, opts);
     
-    int check = all_equal(nk, km->centers, centers_old);
-    if (check == TRUE)
+    bool check = all_equal(nk, km->centers, centers_old);
+    if (check == true)
       break;
     
     memcpy(centers_old, km->centers, nk*sizeof(*centers_old));

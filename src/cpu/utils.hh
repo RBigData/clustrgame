@@ -2,26 +2,23 @@
 #define CLUSTRGAME_UTILS_H_
 
 
-#define FALSE 0
-#define TRUE 1
-
 #define SQRT_EPS_FLT 1e-4f
 #define SQRT_EPS_DBL 1e-8
 
 
-static inline int all_equal(const int len, const float *const restrict x, const float *const restrict y)
+static inline bool all_equal(const int len, const float *const restrict x, const float *const restrict y)
 {
-  float mad = 0.0;
+  float mad = 0.0f;
   
   for (int i=0; i<len; i++)
     mad += x[i] - y[i];
   
   mad /= ((float) len);
   
-  return mad > SQRT_EPS_FLT ? FALSE : TRUE;
+  return mad > SQRT_EPS_FLT ? false : true;
 }
 
-static inline int all_equal(const int len, const double *const restrict x, const double *const restrict y)
+static inline bool all_equal(const int len, const double *const restrict x, const double *const restrict y)
 {
   double mad = 0.0;
   
@@ -30,7 +27,7 @@ static inline int all_equal(const int len, const double *const restrict x, const
   
   mad /= ((double) len);
   
-  return mad > SQRT_EPS_DBL ? FALSE : TRUE;
+  return mad > SQRT_EPS_DBL ? false : true;
 }
 
 

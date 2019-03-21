@@ -8,6 +8,9 @@
 
 #include "types.h"
 
+#define INDEXING_ZERO 0
+#define INDEXING_ONE 1
+
 #define NROWS(x) (x->nrows)
 #define NCOLS(x) (x->ncols)
 #define NROWS_LOCAL(x) (x->nrows_local)
@@ -38,7 +41,7 @@ typedef struct kmeans_opts
   int k;
   int maxiter;
   int seed;
-  int zero_indexed;
+  int indexing;
 } kmeans_opts;
 
 

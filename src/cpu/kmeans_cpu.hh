@@ -195,7 +195,7 @@ static inline int kmeans(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *
   }
   
   
-  if (!opts->zero_indexed)
+  if (opts->indexing == INDEXING_ONE)
     add1(NROWS_LOCAL(x), km->labels);
   
   if (niters < opts->maxiter)

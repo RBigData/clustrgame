@@ -24,7 +24,7 @@ extern "C" SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
   kmeans_opts opts;
   opts.k = k;
   opts.maxiter = INTEGER(maxiter)[0];
-  opts.zero_indexed = 0;
+  opts.indexing = INDEXING_ONE;
   
   PROTECT(ret_labels = allocVector(INTSXP, m_local));
   PROTECT(ret_niters = allocVector(INTSXP, 1));

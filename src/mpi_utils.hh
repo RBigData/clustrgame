@@ -2,41 +2,10 @@
 #define KMEANS_MPI_UTILS_H_
 
 
+#ifdef __cplusplus
+#define OMPI_SKIP_MPICXX 1
+#endif
 #include <mpi.h>
-
-
-#define MPI_CHECK(comm, check) if (check != MPI_SUCCESS) R_mpi_throw_err(check, comm);
-
-static inline void throw_err_mpi(int check, const MPI_Comm comm)
-{
-  int rank;
-  MPI_Comm_rank(comm, &rank);
-  if (rank == 0)
-    error("MPI_Allreduce returned error code %d\n", check);
-  else
-    error(""); // FIXME
-}
-
-
-
-static inline void throw_err_malloc(const MPI_Comm comm)
-{
-  int rank;
-  MPI_Comm_rank(comm, &rank);
-  if (rank == 0)
-    error("Out of memory\n");
-  else
-    error(""); // FIXME
-}
-
-
-
-static inline MPI_Comm get_mpi_comm_from_Robj(SEXP comm_)
-{
-  MPI_Comm *comm = (MPI_Comm*) R_ExternalPtrAddr(comm_);
-  return *comm;
-}
-
 
 
 static inline uint64_t get_numbefore(const int nrows_local, MPI_Comm comm)

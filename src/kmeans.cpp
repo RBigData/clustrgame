@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "kmeans_types.hh"
+#include "Rmpi.h"
 
 
 extern "C" SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
@@ -45,9 +46,9 @@ extern "C" SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
   int check = kmeans(&x, &km, &opts);
   
   if (check == ERROR_MPI)
-    throw_err_mpi(check, comm);
+    R_err_mpi(check, comm);
   else if (check == ERROR_MALLOC)
-    throw_err_malloc(comm);
+    R_err_malloc(comm);
   
   INTEGER(ret_niters)[0] = check;
   

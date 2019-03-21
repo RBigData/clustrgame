@@ -2,6 +2,7 @@
 
 export(km_game)
 import(kazaam)
+importFrom(float,float32)
 importFrom(float,is.float)
 importFrom(pbdMPI,comm.stop)
 useDynLib(clustrgame,R_clustrgame_init)

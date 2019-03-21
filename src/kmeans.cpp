@@ -62,6 +62,8 @@ extern "C" SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
     
     check = kmeans(&x, &km, &opts);
   }
+  else
+    error("this should be impossible; please contact the developers\n");
   
   if (check == ERROR_MPI)
     R_err_mpi(check, comm);

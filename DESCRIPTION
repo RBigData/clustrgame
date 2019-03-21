@@ -2,7 +2,7 @@ Package: clustrgame
 Type: Package
 Title: TODO
 Version: 0.1-0
-Description: TODO
+Description: Clustering analysis methods for 'GPUs'.
 License: BSD 2-clause License + file LICENSE
 SystemRequirements: GNU make.
 Depends:

@@ -5,7 +5,7 @@
 \alias{clustrgame-package}
 \title{clustrgame}
 \description{
-TODO
+Clustering analysis methods for GPUs.
 }
 \references{
 Programming with Big Data in R Website: \url{https://pbdr.org/}

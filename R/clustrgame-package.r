@@ -1,6 +1,6 @@
 #' clustrgame
 #' 
-#' TODO
+#' Clustering analysis methods for GPUs.
 #' 
 #' @import kazaam
 #' @importFrom pbdMPI comm.stop

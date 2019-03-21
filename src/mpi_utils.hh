@@ -2,15 +2,15 @@
 #define KMEANS_MPI_UTILS_H_
 
 
-#ifdef __cplusplus
 #define OMPI_SKIP_MPICXX 1
-#endif
 #include <mpi.h>
 
+#include "types.h"
 
-static inline uint64_t get_numbefore(const int nrows_local, MPI_Comm comm)
+
+static inline len_t get_numbefore(const len_local_t nrows_local, MPI_Comm comm)
 {
-  uint64_t nb4 = 0;
+  len_t nb4 = 0;
   int size, my_rank;
   
   MPI_Comm_size(comm, &size);
@@ -20,14 +20,14 @@ static inline uint64_t get_numbefore(const int nrows_local, MPI_Comm comm)
   {
     if (my_rank == (rank - 1))
     {
-      uint64_t nb4_send = nb4 + nrows_local;
-      MPI_Send(&nb4_send, 1, MPI_UINT64_T, rank, 0, comm);
+      len_t nb4_send = nb4 + nrows_local;
+      MPI_Send(&nb4_send, 1, MPI_LEN_T, rank, 0, comm);
     }
     else if (my_rank == rank)
     {
       MPI_Status status;
-      uint64_t nr_prev_rank;
-      MPI_Recv(&nr_prev_rank, 1, MPI_UINT64_T, rank-1, 0, comm, &status);
+      len_t nr_prev_rank;
+      MPI_Recv(&nr_prev_rank, 1, MPI_LEN_T, rank-1, 0, comm, &status);
       
       nb4 += nr_prev_rank;
     }

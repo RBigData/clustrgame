@@ -41,7 +41,7 @@ static inline int kmeans_init(const shaq<REAL> *const restrict x, kmeans_vals<RE
     return ERROR_MALLOC;
   }
   
-  uint64_t nb4 = get_numbefore(m, x->comm);
+  len_t nb4 = get_numbefore(m, x->comm);
   
   reservoir_sampler(NROWS(x), k, rows);
   sort_insertion(k, rows);
@@ -49,7 +49,7 @@ static inline int kmeans_init(const shaq<REAL> *const restrict x, kmeans_vals<RE
   for (int i=0; i<k; i++)
     rows_local[i] = nb4 <= rows[i] && rows[i] < nb4+m;
   
-  for (int row=0; row<k; row++)
+  for (len_local_t row=0; row<k; row++)
   {
     if (rows_local[row])
     {
@@ -92,7 +92,7 @@ static inline int kmeans_update(const shaq<REAL> *const restrict x, kmeans_vals<
   
   
   memset(nlabels, 0, k*sizeof(*nlabels));
-  for (int i=0; i<m; i++)
+  for (len_local_t i=0; i<m; i++)
     nlabels[labels[i]]++;
   
   check = MPI_Allreduce(MPI_IN_PLACE, nlabels, k, MPI_INTEGER, MPI_SUM, COMM(x));
@@ -143,6 +143,7 @@ static inline void kmeans_assign(const shaq<REAL> *const restrict x, kmeans_vals
   const len_local_t m = NROWS_LOCAL(x);
   const len_local_t n = NCOLS(x);
   const int k = opts->k;
+  
   
   for (len_local_t i=0; i<m; i++)
     km->labels[i] = kmeans_assign_single(m, n, k, DATA(x)+i, km->centers);

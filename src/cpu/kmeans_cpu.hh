@@ -2,12 +2,6 @@
 #define KMEANS_CPU_H_
 
 
-#define OMPI_SKIP_MPICXX 1
-#include <mpi.h>
-#include <Rinternals.h>
-// #include <float/float32.h>
-// #include <float/slapack.h>
-
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>

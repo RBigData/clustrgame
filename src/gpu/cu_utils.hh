@@ -9,5 +9,14 @@
 #define CUFREE(x) {if(x)cudaFree(x);}
 #define PRINT_CUDA_ERROR() printf("%s\n", cudaGetErrorString(cudaGetLastError()));
 
+static inline int get_num_blocks(const int m)
+{
+  int nb = m / TPB;
+  if (m % TPB)
+    nb++;
+  
+  return nb;
+}
+
 
 #endif

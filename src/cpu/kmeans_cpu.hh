@@ -23,7 +23,7 @@
 
 
 template <typename REAL>
-static inline int kmeans_init(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *const restrict km, const kmeans_opts *const restrict opts)
+static inline int kmeans_init(const shaq_t<REAL> *const restrict x, km_vals_t<REAL> *const restrict km, const km_opts_t *const restrict opts)
 {
   const len_local_t m = NROWS_LOCAL(x);
   const len_local_t n = NCOLS(x);
@@ -69,7 +69,7 @@ static inline int kmeans_init(const shaq<REAL> *const restrict x, kmeans_vals<RE
 
 
 template <typename REAL>
-static inline int kmeans_update(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *const restrict km, const kmeans_opts *const restrict opts)
+static inline int kmeans_update(const shaq_t<REAL> *const restrict x, km_vals_t<REAL> *const restrict km, const km_opts_t *const restrict opts)
 {
   int check;
   const len_local_t m = NROWS_LOCAL(x);
@@ -138,7 +138,7 @@ static inline int kmeans_assign_single(const int m, const int n, const int k, co
 
 
 template <typename REAL>
-static inline void kmeans_assign(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *const restrict km, const kmeans_opts *const restrict opts)
+static inline void kmeans_assign(const shaq_t<REAL> *const restrict x, km_vals_t<REAL> *const restrict km, const km_opts_t *const restrict opts)
 {
   const len_local_t m = NROWS_LOCAL(x);
   const len_local_t n = NCOLS(x);
@@ -153,7 +153,7 @@ static inline void kmeans_assign(const shaq<REAL> *const restrict x, kmeans_vals
 
 // returns number of iterations
 template <typename REAL>
-static inline int kmeans(const shaq<REAL> *const restrict x, kmeans_vals<REAL> *const restrict km, const kmeans_opts *const restrict opts)
+static inline int kmeans(const shaq_t<REAL> *const restrict x, km_vals_t<REAL> *const restrict km, const km_opts_t *const restrict opts)
 {
   int ret;
   int niters;

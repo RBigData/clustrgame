@@ -20,7 +20,7 @@ extern "C" SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
   const int n = ncols(data);
   const int k = INTEGER(k_)[0];
   
-  kmeans_opts opts;
+  km_opts_t opts;
   opts.k = k;
   opts.maxiter = INTEGER(maxiter)[0];
   opts.indexing = INDEXING_ONE;
@@ -32,14 +32,14 @@ extern "C" SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
   {
     PROTECT(ret_centers = allocMatrix(REALSXP, n, k));
     
-    shaq<double> x;
+    shaq_t<double> x;
     x.nrows = INTEGER(m)[0];
     x.ncols = n;
     x.nrows_local = m_local;
     x.data = REAL(data);
     x.comm = comm;
     
-    kmeans_vals<double> km;
+    km_vals_t<double> km;
     km.centers = REAL(ret_centers);
     km.labels = INTEGER(ret_labels);
     
@@ -49,14 +49,14 @@ extern "C" SEXP R_kmeans(SEXP data, SEXP m, SEXP k_, SEXP maxiter, SEXP comm_)
   {
     PROTECT(ret_centers = allocMatrix(INTSXP, n, k));
     
-    shaq<float> x;
+    shaq_t<float> x;
     x.nrows = INTEGER(m)[0];
     x.ncols = n;
     x.nrows_local = m_local;
     x.data = FLOAT(data);
     x.comm = comm;
     
-    kmeans_vals<float> km;
+    km_vals_t<float> km;
     km.centers = FLOAT(ret_centers);
     km.labels = INTEGER(ret_labels);
     

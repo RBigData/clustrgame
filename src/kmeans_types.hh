@@ -19,7 +19,7 @@
 #define COMM(x) (x->comm)
 
 template <typename REAL>
-struct shaq
+struct shaq_t
 {
   len_t nrows;
   len_local_t ncols;
@@ -29,14 +29,14 @@ struct shaq
 };
 
 template <typename REAL>
-struct kmeans_vals
+struct km_vals_t
 {
   REAL *restrict centers;
   int *restrict labels;
   int *restrict nlabels;
 };
 
-typedef struct kmeans_opts
+typedef struct km_opts_t
 {
   int k;
   int maxiter;
